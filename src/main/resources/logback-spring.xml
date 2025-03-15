@@ -1,0 +1,22 @@
+<configuration>
+    <appender name="LOGSTASH_ASYNC" class="net.logstash.logback.appender.LoggingEventAsyncDisruptorAppender">
+        <appenderRef ref="LOGSTASH_TCP"/>
+    </appender>
+
+    <appender name="LOGSTASH_TCP" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <host>localhost</host>
+        <port>5000</port>
+        <encoder class="net.logstash.logback.encoder.LoggingEventJsonEncoder"/>
+    </appender>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="LOGSTASH_ASYNC"/>
+    </root>
+</configuration>
