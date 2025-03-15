@@ -1,5 +1,6 @@
 package com.lawcare.lawcarebackend.common.exception;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -27,7 +29,7 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             LocalDateTime.now(),
             500,
-            "서버 내부 오류가 발생했습니다.",
+            "서버 내부 오류 발생",
             ex.getMessage(),
             request.getRequestURI()
         );
@@ -44,8 +46,22 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(
             LocalDateTime.now(),
             400,
-            "잘못된 요청입니다.",
+            "잘못된 요청",
             "검증 오류: " + ex.getBindingResult(),
+            request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIllegalArg(IllegalArgumentException ex, HttpServletRequest request) {
+        log.warn("유효하지 않은 요청 데이터 (URI: {}): {}", request.getRequestURI(), ex.getMessage());
+
+        return new ErrorResponse(
+            LocalDateTime.now(),
+            400,
+            "잘못된 요청",
+            ex.getMessage(),
             request.getRequestURI()
         );
     }
