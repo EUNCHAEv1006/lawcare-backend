@@ -1,7 +1,7 @@
-package com.lawcare.lawcarebackend.config;
+package com.lawcare.lawcarebackend.common.config;
 
-import com.lawcare.lawcarebackend.security.JwtAuthenticationFilter;
-import com.lawcare.lawcarebackend.security.TokenProvider;
+import com.lawcare.lawcarebackend.common.security.JwtAuthenticationFilter;
+import com.lawcare.lawcarebackend.common.security.TokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

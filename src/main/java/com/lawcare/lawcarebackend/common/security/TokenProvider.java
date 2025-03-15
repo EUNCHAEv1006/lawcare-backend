@@ -1,4 +1,4 @@
-package com.lawcare.lawcarebackend.security;
+package com.lawcare.lawcarebackend.common.security;
 
 import com.lawcare.lawcarebackend.Role;
 import io.jsonwebtoken.Claims;

@@ -1,4 +1,4 @@
-package com.lawcare.lawcarebackend.config;
+package com.lawcare.lawcarebackend.common.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;

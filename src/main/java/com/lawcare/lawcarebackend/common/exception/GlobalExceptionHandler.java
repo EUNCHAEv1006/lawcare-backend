@@ -1,4 +1,4 @@
-package com.lawcare.lawcarebackend.exception;
+package com.lawcare.lawcarebackend.common.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

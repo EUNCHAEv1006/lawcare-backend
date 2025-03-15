@@ -1,4 +1,4 @@
-package com.lawcare.lawcarebackend.config;
+package com.lawcare.lawcarebackend.common.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

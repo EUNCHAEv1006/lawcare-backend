@@ -1,4 +1,4 @@
-package com.lawcare.lawcarebackend.security;
+package com.lawcare.lawcarebackend.common.security;
 
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
