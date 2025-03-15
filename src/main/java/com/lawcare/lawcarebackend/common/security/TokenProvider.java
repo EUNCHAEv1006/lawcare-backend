@@ -43,12 +43,12 @@ public class TokenProvider {
      * @param role   Role.USER or Role.COUNSELOR
      * @return 생성된 JWT
      */
-    public String createToken(String userId, Role role) {
+    public String createToken(Long userId, Role role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + EXPIRATION_TIME_MS);
 
         return Jwts.builder()
-                   .setSubject(userId)
+                   .setSubject(String.valueOf(userId))
                    .setIssuedAt(now)
                    .setExpiration(expiryDate)
                    .claim("role", role.name())

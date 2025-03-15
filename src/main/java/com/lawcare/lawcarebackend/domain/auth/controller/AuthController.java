@@ -1,6 +1,7 @@
 package com.lawcare.lawcarebackend.domain.auth.controller;
 
 import com.lawcare.lawcarebackend.common.dto.SuccessResponse;
+import com.lawcare.lawcarebackend.domain.auth.dto.request.LoginRequestDTO;
 import com.lawcare.lawcarebackend.domain.auth.dto.request.SignUpRequestDTO;
 import com.lawcare.lawcarebackend.domain.auth.dto.response.SignUpResponseDTO;
 import com.lawcare.lawcarebackend.domain.auth.service.AuthService;
@@ -56,6 +57,31 @@ public class AuthController {
             responseData,
             request.getRequestURI()
         );
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+        summary = "로그인",
+        description = "사용자의 로그인 요청을 처리하고, 유효한 자격증명을 가진 사용자에게 JWT 토큰을 발급합니다."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "로그인 성공"),
+        @ApiResponse(responseCode = "400", description = "비밀번호 불일치")
+    })
+    @PostMapping("/login")
+    public ResponseEntity<SuccessResponse<String>> login(
+        @Valid @RequestBody LoginRequestDTO loginRequest,
+        HttpServletRequest request
+    ) {
+        String token = authService.login(loginRequest);
+
+        SuccessResponse<String> response = SuccessResponse.of(
+            HttpStatus.OK.value(),
+            "로그인 성공",
+            token,
+            request.getRequestURI()
+        );
+
         return ResponseEntity.ok(response);
     }
 }
