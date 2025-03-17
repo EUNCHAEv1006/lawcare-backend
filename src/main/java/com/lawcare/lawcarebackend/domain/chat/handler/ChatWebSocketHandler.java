@@ -55,7 +55,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         TextMessage broadcastMessage = new TextMessage("[" + roomId + "] " + requestDTO.getContent());
         for (WebSocketSession wsSession : roomSessions.get(roomId)) {
             if (wsSession.isOpen()) {
-                wsSession.sendMessage(broadcastMessage);
+                // 동기화 블록으로 각 세션에 대한 sendMessage 호출을 순차적으로 처리
+                synchronized (wsSession) {
+                    wsSession.sendMessage(broadcastMessage);
+                }
             }
         }
     }
