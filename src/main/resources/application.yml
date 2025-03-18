@@ -10,3 +10,7 @@ spring:
 
 jwt:
   secret-key: ${JWT_SECRET}
+
+google:
+  translate:
+    apiKey: ${GOOGLE_TRANSLATE_API_KEY}

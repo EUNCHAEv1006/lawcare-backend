@@ -1,7 +1,9 @@
 package com.lawcare.lawcarebackend.domain.chat.controller;
 
 import com.lawcare.lawcarebackend.common.dto.SuccessResponse;
+import com.lawcare.lawcarebackend.common.dto.TranslationResponseDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageRequestDTO;
+import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageTranslateRequestDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.response.ChatMessageResponseDTO;
 import com.lawcare.lawcarebackend.domain.chat.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,6 +63,35 @@ public class ChatController {
             responseData,
             request.getRequestURI()
         );
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+        summary = "채팅 메시지 번역",
+        description = "사용자가 원하는 언어로 메시지를 번역합니다."
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "번역 성공",
+            content = @Content(schema = @Schema(implementation = TranslationResponseDTO.class))),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청 또는 예외 발생")
+    })
+    @PostMapping("/translate")
+    public ResponseEntity<SuccessResponse<TranslationResponseDTO>> translateChatMessage(
+        @Valid @RequestBody ChatMessageTranslateRequestDTO requestDTO,
+        HttpServletRequest request
+    ) {
+        logger.info("번역 요청: originalMessage={}, targetLang={}",
+            requestDTO.getOriginalMessage(), requestDTO.getTargetLanguage());
+
+        TranslationResponseDTO translation = chatService.translateChatMessage(requestDTO);
+
+        SuccessResponse<TranslationResponseDTO> response = SuccessResponse.of(
+            HttpStatus.OK.value(),
+            "채팅 메시지 번역 성공",
+            translation,
+            request.getRequestURI()
+        );
+
         return ResponseEntity.ok(response);
     }
 }

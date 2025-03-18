@@ -1,6 +1,8 @@
 package com.lawcare.lawcarebackend.domain.chat.service;
 
+import com.lawcare.lawcarebackend.common.dto.TranslationResponseDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageRequestDTO;
+import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageTranslateRequestDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.response.ChatMessageResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,11 +15,13 @@ public class ChatService {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
     private static final String CHAT_MESSAGES_KEY_PREFIX = "chat:room:";
-
     private final RedisTemplate<String, Object> redisTemplate;
+    private final TranslationService translationService;
 
-    public ChatService(RedisTemplate<String, Object> redisTemplate) {
+    public ChatService(RedisTemplate<String, Object> redisTemplate,
+                       TranslationService translationService) {
         this.redisTemplate = redisTemplate;
+        this.translationService = translationService;
     }
 
     /**
@@ -50,6 +54,24 @@ public class ChatService {
         } catch (Exception e) {
             logger.error("채팅 메시지 처리 중 예외 발생", e);
             throw new IllegalArgumentException("채팅 메시지 처리에 실패했습니다.", e);
+        }
+    }
+
+    /**
+     * 채팅 메시지 번역 로직
+     */
+    public TranslationResponseDTO translateChatMessage(ChatMessageTranslateRequestDTO requestDTO) {
+        try {
+            logger.info("번역 요청 - original: {}, target: {}",
+                requestDTO.getOriginalMessage(), requestDTO.getTargetLanguage());
+
+            return translationService.translateMessage(
+                requestDTO.getOriginalMessage(),
+                requestDTO.getTargetLanguage()
+            );
+        } catch (Exception e) {
+            logger.error("[translateChatMessage] 번역 처리 중 예외 발생", e);
+            throw new IllegalArgumentException("채팅 메시지 번역에 실패했습니다.", e);
         }
     }
 }

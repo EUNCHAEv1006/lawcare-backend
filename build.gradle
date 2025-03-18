@@ -60,6 +60,9 @@ dependencies {
     // Spring Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
 
+    // Google Translate
+    implementation 'com.google.cloud:google-cloud-translate:2.34.0'
+
 }
 
 tasks.named('test') {
