@@ -14,3 +14,10 @@ jwt:
 google:
   translate:
     apiKey: ${GOOGLE_TRANSLATE_API_KEY}
+
+ai:
+  huggingface:
+    endpoint: ${HF_ENDPOINT}
+    token: ${HF_TOKEN}
+  openai:
+    token: ${OPENAI_TOKEN}
