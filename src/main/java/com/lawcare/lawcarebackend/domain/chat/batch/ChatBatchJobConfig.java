@@ -1,6 +1,8 @@
 package com.lawcare.lawcarebackend.domain.chat.batch;
 
 import com.lawcare.lawcarebackend.domain.chat.dto.response.ChatMessageResponseDTO;
+import com.lawcare.lawcarebackend.domain.chat.entity.ChatMessage;
+import com.lawcare.lawcarebackend.domain.chat.repository.ChatMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -13,6 +15,7 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,10 +40,10 @@ public class ChatBatchJobConfig {
     public Step archiveChatMessagesStep(JobRepository jobRepository,
                                         PlatformTransactionManager transactionManager,
                                         ItemReader<ChatMessageResponseDTO> reader,
-                                        ItemProcessor<ChatMessageResponseDTO, ChatMessageResponseDTO> processor,
-                                        ItemWriter<ChatMessageResponseDTO> writer) {
+                                        ItemProcessor<ChatMessageResponseDTO, ChatMessage> processor,
+                                        ItemWriter<ChatMessage> writer) {
         return new StepBuilder("archiveChatMessagesStep", jobRepository)
-            .<ChatMessageResponseDTO, ChatMessageResponseDTO>chunk(10, transactionManager)
+            .<ChatMessageResponseDTO, ChatMessage>chunk(10, transactionManager)
             .reader(reader)
             .processor(processor)
             .writer(writer)
@@ -54,15 +57,23 @@ public class ChatBatchJobConfig {
     }
 
     @Bean
-    public ItemProcessor<ChatMessageResponseDTO, ChatMessageResponseDTO> chatMessageProcessor() {
+    public ItemProcessor<ChatMessageResponseDTO, ChatMessage> chatMessageProcessor() {
         return item -> {
             logger.info("메시지 처리 중: {}", item.getContent());
-            return item;
+            return new ChatMessage(
+                item.getType(),
+                item.getSender(),
+                item.getContent(),
+                item.getRoomId()
+            );
         };
     }
 
     @Bean
-    public ItemWriter<ChatMessageResponseDTO> chatMessageWriter() {
-        return items -> items.forEach(item -> logger.info("아카이브된 메시지: {}", item.getContent()));
+    public RepositoryItemWriter<ChatMessage> chatMessageWriter(ChatMessageRepository repository) {
+        RepositoryItemWriter<ChatMessage> writer = new RepositoryItemWriter<>();
+        writer.setRepository(repository);
+        writer.setMethodName("save");
+        return writer;
     }
 }

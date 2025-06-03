@@ -5,6 +5,8 @@ import com.lawcare.lawcarebackend.common.dto.TranslationResponseDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageRequestDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.request.ChatMessageTranslateRequestDTO;
 import com.lawcare.lawcarebackend.domain.chat.dto.response.ChatMessageResponseDTO;
+import com.lawcare.lawcarebackend.domain.chat.entity.ChatMessage;
+import com.lawcare.lawcarebackend.domain.chat.service.ChatHistoryService;
 import com.lawcare.lawcarebackend.domain.chat.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,10 +21,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -30,9 +31,11 @@ public class ChatController {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatController.class);
     private final ChatService chatService;
+    private final ChatHistoryService chatHistoryService;
 
-    public ChatController(ChatService chatService) {
+    public ChatController(ChatService chatService, ChatHistoryService chatHistoryService) {
         this.chatService = chatService;
+        this.chatHistoryService = chatHistoryService;
     }
 
     @Operation(
@@ -92,6 +95,23 @@ public class ChatController {
             request.getRequestURI()
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/history/{roomId}")
+    @Operation(summary = "채팅 기록 조회", description = "특정 채팅방의 메시지 기록을 조회합니다.")
+    public ResponseEntity<SuccessResponse<List<ChatMessage>>> getChatHistory(
+        @PathVariable String roomId,
+        HttpServletRequest request
+    ) {
+        List<ChatMessage> history = chatHistoryService.getChatHistory(roomId);
+
+        SuccessResponse<List<ChatMessage>> response = SuccessResponse.of(
+            HttpStatus.OK.value(),
+            "채팅 기록 조회 성공",
+            history,
+            request.getRequestURI()
+        );
         return ResponseEntity.ok(response);
     }
 }
