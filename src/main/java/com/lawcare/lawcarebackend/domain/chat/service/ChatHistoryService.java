@@ -16,6 +16,6 @@ public class ChatHistoryService {
     }
 
     public List<ChatMessage> getChatHistory(String roomId) {
-        return chatMessageRepository.findByRoomIdOrderByCreatedAtAsc(roomId);
+        return chatMessageRepository.findByRoomIdOrderByCreatedAtDesc(roomId);
     }
 }

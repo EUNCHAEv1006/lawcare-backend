@@ -1,8 +1,6 @@
 package com.lawcare.lawcarebackend.domain.chat.batch;
 
 import com.lawcare.lawcarebackend.domain.chat.dto.response.ChatMessageResponseDTO;
-import com.lawcare.lawcarebackend.domain.chat.entity.ChatMessage;
-import com.lawcare.lawcarebackend.domain.chat.repository.ChatMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
@@ -15,7 +13,6 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -26,24 +23,24 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class ChatBatchJobConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(ChatBatchJobConfig.class);
-    private static final String JOB_NAME = "archiveChatMessagesJob";
+    private static final String JOB_NAME = "cleanupOldChatMessagesJob";
 
     @Bean
-    public Job archiveChatMessagesJob(JobRepository jobRepository,
-                                      Step archiveChatMessagesStep) {
+    public Job cleanupOldChatMessagesJob(JobRepository jobRepository,
+                                         Step cleanupChatMessagesStep) {
         return new JobBuilder(JOB_NAME, jobRepository)
-            .start(archiveChatMessagesStep)
+            .start(cleanupChatMessagesStep)
             .build();
     }
 
     @Bean
-    public Step archiveChatMessagesStep(JobRepository jobRepository,
+    public Step cleanupChatMessagesStep(JobRepository jobRepository,
                                         PlatformTransactionManager transactionManager,
                                         ItemReader<ChatMessageResponseDTO> reader,
-                                        ItemProcessor<ChatMessageResponseDTO, ChatMessage> processor,
-                                        ItemWriter<ChatMessage> writer) {
-        return new StepBuilder("archiveChatMessagesStep", jobRepository)
-            .<ChatMessageResponseDTO, ChatMessage>chunk(10, transactionManager)
+                                        ItemProcessor<ChatMessageResponseDTO, ChatMessageResponseDTO> processor,
+                                        ItemWriter<ChatMessageResponseDTO> writer) {
+        return new StepBuilder("cleanupChatMessagesStep", jobRepository)
+            .<ChatMessageResponseDTO, ChatMessageResponseDTO>chunk(10, transactionManager)
             .reader(reader)
             .processor(processor)
             .writer(writer)
@@ -57,23 +54,20 @@ public class ChatBatchJobConfig {
     }
 
     @Bean
-    public ItemProcessor<ChatMessageResponseDTO, ChatMessage> chatMessageProcessor() {
+    public ItemProcessor<ChatMessageResponseDTO, ChatMessageResponseDTO> chatMessageProcessor() {
         return item -> {
-            logger.info("메시지 처리 중: {}", item.getContent());
-            return new ChatMessage(
-                item.getType(),
-                item.getSender(),
-                item.getContent(),
-                item.getRoomId()
-            );
+            logger.info("Redis 메시지 정리 중: {}", item.getContent());
+            return item; // 이미 DB에 저장되어 있으므로 Redis에서만 제거
         };
     }
 
     @Bean
-    public RepositoryItemWriter<ChatMessage> chatMessageWriter(ChatMessageRepository repository) {
-        RepositoryItemWriter<ChatMessage> writer = new RepositoryItemWriter<>();
-        writer.setRepository(repository);
-        writer.setMethodName("save");
-        return writer;
+    public ItemWriter<ChatMessageResponseDTO> chatMessageWriter() {
+        return items -> {
+            items.forEach(item ->
+                logger.info("Redis에서 정리된 메시지: {} (DB에는 보존됨)", item.getContent())
+            );
+            // Redis에서는 제거되었지만 DB에는 영구 보존됨
+        };
     }
 }
