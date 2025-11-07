@@ -2,8 +2,10 @@ package com.lawcare.lawcarebackend.domain.chat.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @Schema(description = "채팅 메시지 응답 DTO")
 public class ChatMessageResponseDTO {
 

@@ -32,7 +32,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
-    runtimeOnly 'mysql:mysql-connector-java:8.0.34'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -57,9 +56,6 @@ dependencies {
 
     // WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
-
-    // Spring Batch
-    implementation 'org.springframework.boot:spring-boot-starter-batch'
 
     // Google Translate
     implementation 'com.google.cloud:google-cloud-translate:2.34.0'
